@@ -7,10 +7,15 @@ class Anla:
 
     # Convertir el índice a tipo de datos de fecha
     df.index = pd.to_datetime(df.index)
-    # Renombrar la segunda columna como 'Caudal'
-    # Renombrar la segunda columna como 'Caudal'
-    df.rename(columns={1: 'Caudal'}, inplace=True)
 
     # Calcular el promedio de los caudales cada 7 días
     promedio_7_dias = df.resample('7D').mean()
-    
+
+    #Serie caudal de excedente minimos por año
+
+    # Calcular el mínimo de caudal por año
+    minimos_por_ano = promedio_7_dias.groupby(promedio_7_dias.index.year)['cuenca-base'].min()
+
+    # Crear un DataFrame con los mínimos de caudal por año
+    df_minimos_por_ano = pd.DataFrame(minimos_por_ano)
+
