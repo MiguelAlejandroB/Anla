@@ -4,7 +4,7 @@ from scipy.stats import norm, lognorm, gumbel_r, pearson3,  weibull_min
 import matplotlib.pyplot as plt
 
 class Anla:
-    def QAnla(df):
+    def sieteQ10(df):
         # Establecer la primera columna como el índice del DataFrame
         df.set_index(df.columns[0], inplace=True)
 
@@ -97,7 +97,7 @@ class Anla:
         print(S7Q10)
 
         #Calcular
-
+    #Pruebas con el archivo
     df = pd.read_csv("est_25027400_limpia.csv")
     x=QAnla(df)
     #0.003517763085733081
