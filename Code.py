@@ -1,6 +1,6 @@
 import numpy as np #Importo las librerias que voy a usar fuera de la clase
 import pandas as pd
-from scipy.stats import norm, lognorm, gumbel_r, pearson3,  gamma
+from scipy.stats import norm, lognorm, gumbel_r, pearson3,  weibull_min
 import matplotlib.pyplot as plt
 
 class Anla:
@@ -59,32 +59,42 @@ class Anla:
             vesp.append(n)
         corp = np.corrcoef(df_minimos_por_ano['cuenca-base'], vesp)[0, 1]
         #Weibull
-        shape, loc, scale = gamma.fit(datos)
-
+        shape, loc, scale = weibull_min.fit(df_minimos_por_ano['cuenca-base'])
+        vesw=[]
+        for x in df_minimos_por_ano['cuenca-base']:
+            n = weibull_min.pdf(x, shape, loc, scale)
+            vesw.append(n)
+        corw = np.corrcoef(df_minimos_por_ano['cuenca-base'], vesw)[0, 1]
         #Sacar el mayor de las correlaciones y sacar en 10 años cuanto es el 7Q10
         TR = 10
         pe = 1 - (1 / TR)
-        def mc(a, b, c, d):
-            maximo = max(a, b, c, d)  # Encuentra el máximo entre los tres valores
+        def mc(a, b, c, d,e):
+            maximo = max(a, b, c, d,e)  # Encuentra el máximo entre los tres valores
             if a == maximo:  # Comprueba si a es el máximo
                 return 1
             elif b == maximo:  # Comprueba si b es el máximo
                 return 2
             elif c == maximo:  # Si no es a ni b, entonces c es el máximo
                 return 3
-            else:
+            elif d == maximo:  # Si no es a ni b, entonces c es el máximo
                 return 4
+            else:
+                return 5
 
 
-        bin= mc(np.abs(corn),np.abs(corln), np.abs(corg), np.abs(corp))
+        bin= mc(np.abs(corn),np.abs(corln), np.abs(corg), np.abs(corp),np.abs(corw))
+
         if bin == 1 :
             S7Q10 = norm.ppf(pe, loc=mun, scale=stdn)#84.08149197181189
         elif bin ==2 :
             S7Q10 = lognorm.ppf(pe, pln[2],pln[2],pln[0])#84.08149197181189
         elif bin == 3 :
             S7Q10 = gumbel_r.ppf(pe, loc=mug, scale=beta)
-        else:
+        elif bin == 4 :
             S7Q10 = pearson3.ppf(pe, a1,loc=m, scale=s)
+        else:
+            S7Q10 = weibull_min.ppf(pe, shape, loc, scale)
+        print(S7Q10)
 
         #Calcular
 
